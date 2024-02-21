@@ -1,0 +1,25 @@
+{
+    "version": "2.0.0",
+    "options": {
+      "env": {
+        "DB_URL": "jdbc:sqlite:${workspaceFolder}/docker/db.sqlite3"
+      }
+    },
+    "tasks": [
+      {
+        "label": "DeployTomEE",
+        "type": "shell",
+        "command": "mvn clean package tomee:run",
+        "group": {
+          "kind": "build",
+          "isDefault": true
+        },
+        "problemMatcher": [],
+        "isBackground": true,
+        "options": {
+          "cwd": "./docker/WebApp/"
+        }
+      }
+    ]
+  }
+  

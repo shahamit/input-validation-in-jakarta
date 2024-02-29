@@ -15,7 +15,7 @@
 
 * Create a private fork of this repository. Share it only to the Github users [Ferran][3] and [Lluís][4].
 * Add content to your new private repository in order to finish this contribution on Input Validation.
-* Once you consider that all content was added, reply back to the email you received from us so we can proceed to evaluate your fantastic work done. Afterwards, we will contact you.
+* Once you consider that all content was added, **reply back to the email you received from us** so we can proceed to evaluate your fantastic work done. Afterwards, we will contact you.
 
 ## How should this contribution be finished/completed?
 
@@ -35,7 +35,7 @@
 ## Will you be financially compensated for this contribution?
 
 * Sorry, this contribution will only be used to evaluate your skills, since it will be also implemented by other selected candidates.
-* However, if we like your work, we will use this contribution to negotiate with you the financial reward from now on for future contributions. We promise a generous reward if the content is brilliant.
+* However, if we like your work, we will use this contribution to negotiate with you the financial reward from now on for future contributions (from $40 to $70, with potential for growth over time).
 * Please note that in future contributions all code, as the simple Java Jakarta web application in this case, will have to be implemented by yourself.
 
 ## Important considerations

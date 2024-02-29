@@ -27,7 +27,7 @@
   * You can find a simple Java Jakarta web application in the `docker` folder that needs input validation to be secure. You should modify the code to implement an Input Validation strategy according to the needs of the application. The `docker` folder contains its own `README.md` with more information.
     * Make sure you don't implement another technique to query the database, such as prepared statements. Just add an input validation strategy in the current code.
 
-## Should I respect any writing format?
+## Should you respect any writing format?
 
 * Yes, please refer to the repository [sample-contribution-content][2] where you will find an example and more information about this.
   * Basically, note the writing style by using bulleted lists with short, specific sentences. This is the writing format we want to use to explain content.

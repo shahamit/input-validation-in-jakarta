@@ -1,9 +1,6 @@
 package io.ontablab;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 
 public class DBManager {
   private static final String URL = System.getenv("DB_URL");
@@ -24,8 +21,8 @@ public class DBManager {
     }
   }
 
-  public Statement createStatement() throws SQLException {
-    return this.connection.createStatement();
+  public PreparedStatement createPreparedStatement(String sqlQuery) throws SQLException {
+    return this.connection.prepareStatement(sqlQuery);
   }
 
   public void close() {

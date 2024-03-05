@@ -25,7 +25,7 @@ class SearchHandler {
             return "SELECT * FROM traffic_logs;";
         }
 
-        StringBuilder whereClause = new StringBuilder();
+        String whereClause = "";
         String[] qFilters = q.split(" ");
 
         for (String qFilter : qFilters) {
@@ -33,30 +33,31 @@ class SearchHandler {
 
             switch (filterAttributes[0]) {
                 case "ip.src":
+                    if(isValidIPAddress(filterAttributes[1])) {
+                        whereClause += "sourceIP='" + filterAttributes[1] + "'";
+                    } else {
+                        throw new IllegalStateException("Invalid source IP address : " + filterAttributes[1]);
+                    }
+                    break;
                 case "ip.dst":
+                    if(isValidIPAddress(filterAttributes[1])) {
+                        whereClause += "destinationIP='" + filterAttributes[1] + "'";
+                    } else {
+                        throw new IllegalStateException("Invalid destination IP address : " + filterAttributes[1]);
+                    }
+                    break;
                 case "tcp.port":
-                    whereClause.append(getConditionForFilter(filterAttributes[0]));
+                    if(isValidPortNumber(filterAttributes[1])) {
+                        whereClause += "port='" + filterAttributes[1] + "'";
+                    } else {
+                        throw new IllegalStateException("Invalid port number : " + filterAttributes[1]);
+                    }
                     break;
                 default:
                     throw new IllegalStateException("Invalid filter attribute : " + filterAttributes[0]);
             }
-            whereClause.append(" AND ");
         }
-        whereClause.delete(whereClause.length() - 5, whereClause.length()); //Remove the trailing " AND "
         return "SELECT * FROM traffic_logs WHERE " + whereClause + ";";
-    }
-
-    private String getConditionForFilter(String filterAttribute) {
-        switch (filterAttribute) {
-            case "ip.src":
-                return "sourceIP=?";
-            case "ip.dst":
-                return "destinationIP=?";
-            case "tcp.port":
-                return "port=?";
-            default:
-                throw new IllegalArgumentException("Invalid filter attribute: " + filterAttribute);
-        }
     }
 
     public List<TrafficLog> getTrafficLogsFromSearch(String q) {
@@ -64,9 +65,8 @@ class SearchHandler {
         List<TrafficLog> trafficLogs = new ArrayList<>();
 
         try {
-            PreparedStatement stmt = dbManager.createPreparedStatement(rawSQLQuery);
-            setParametersToStmt(stmt, q);
-            ResultSet resultSet = stmt.executeQuery();
+            Statement stmt = dbManager.createStatement();
+            ResultSet resultSet = stmt.executeQuery(rawSQLQuery);
 
             while (resultSet.next()) {
                 TrafficLog trafficLog = TrafficLog.getInstanceFromResultSet(resultSet);
@@ -80,31 +80,6 @@ class SearchHandler {
         }
 
         return trafficLogs;
-    }
-
-    private void setParametersToStmt(PreparedStatement preparedStatement, String q) throws SQLException {
-        String[] qFilters = q.split(" ");
-        int parameterIndex = 1;
-        for (String qFilter : qFilters) {
-            String[] filterAttributes = qFilter.split("==");
-            switch (filterAttributes[0]) {
-                case "ip.src":
-                case "ip.dst":
-                    if(isValidIPAddress(filterAttributes[1])) {
-                        preparedStatement.setString(parameterIndex++, filterAttributes[1]);
-                    } else {
-                        throw new IllegalStateException("Invalid IP Address : " + filterAttributes[1]);
-                    }
-                    break;
-                case "tcp.port":
-                    if(isValidPortNumber(filterAttributes[1])) {
-                        preparedStatement.setString(parameterIndex++, filterAttributes[1]);
-                    } else {
-                        throw new IllegalStateException("Invalid port number : " + filterAttributes[1]);
-                    }
-                    break;
-            }
-        }
     }
 
     private boolean isValidIPAddress(String ipAddress) {

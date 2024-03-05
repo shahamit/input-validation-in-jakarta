@@ -21,8 +21,8 @@ public class DBManager {
     }
   }
 
-  public PreparedStatement createPreparedStatement(String sqlQuery) throws SQLException {
-    return this.connection.prepareStatement(sqlQuery);
+  public Statement createStatement() throws SQLException {
+    return this.connection.createStatement();
   }
 
   public void close() {

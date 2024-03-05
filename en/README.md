@@ -54,7 +54,7 @@ is as below
 * For e.g. below code validates that the user role matches with the predefined roles that the application understands
 ```java
   String[] allowList = {"admin", "user", "guest"};
-  String userRole = "admin"; //hard-coding for demo
+  String userRole = request.getParameter("role");
   for (String allowed : allowList) {
     if (userRole.equals(allowed)) 
         return true;

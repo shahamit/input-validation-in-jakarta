@@ -1,4 +1,4 @@
-# Input Validation in Java Jakarta
+# Input Validation in Java Jakarta Applications
 
 # What is Input Validation
 
@@ -12,6 +12,8 @@ or JMS (Java Message Service)
   * In JSP pages, input may be submitted through HTML forms or request parameters
 * Input validation is a process of inspecting and validating this data to ensure it meets certain criteria.
 * A standard criteria is to validate the syntax, semantics, length and the format of the input data.
+* These validations should be performed on both the client and the server side. Client-side validation provides quick 
+feedback to users, while server-side validation acts as the final line of defense
 * Jakarta EE has a Jakarta Bean Validation API that provides a powerful framework for implementing input validation
 * It offers a set of annotations and APIs (demonstrated below) that are used to define validation constraints on Java beans, DTOs, and domain objects.
 ```java
@@ -69,7 +71,7 @@ public class BeanValidationExample {
 * Input normalization is needed because
   * it could contain characters from different character sets 
   * because same character could have many representations in unicode. 
-    * For e.g. character "é,"can be represented in Unicode as either a single code point (U+00E9) or 
+    * For e.g. character "é" can be represented in Unicode as either a single code point (U+00E9) or 
     as a combination of the letter "e" (U+0065) followed by the combining acute accent (U+0301).
 * Normalizing input to a certain encoding ensures that the data has a consistent encoding across platforms and environments
 * In Java, `java.text.Normalizer.normalize()` method transforms Unicode text into the standard normalization forms 
@@ -113,6 +115,9 @@ public class User {
 
 ## Allow-List Validation.
 * Accepts only known, expected input values or patterns while rejecting all others.
+* Also referred as whitelisting, it is most of the times used to manage access and permissions within the application
+* A common practice is to also have `deny-list` where specific inputs are identified as problematic and blocked
+* Allow-list is more secure as it only permits known and verified entities, reducing the chances of unforeseen vulnerabilities
 * For e.g. below code validates that the user role matches with the predefined roles that the application defines
 ```java
   String userRole = request.getParameter("role");

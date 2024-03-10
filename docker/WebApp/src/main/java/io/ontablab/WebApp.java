@@ -7,13 +7,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.sql.*;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 class SearchHandler {
     private DBManager dbManager;
+    private final Logger logger = Logger.getLogger(SearchHandler.class.getName());
 
     public SearchHandler(DBManager dbManager) {
         this.dbManager = dbManager;
@@ -24,44 +27,48 @@ class SearchHandler {
         if (q == null || q.isEmpty()) {
             return "SELECT * FROM traffic_logs;";
         }
-
-        String whereClause = "";
-        String[] qFilters = q.split(" ");
+        q = Normalizer.normalize(q, Normalizer.Form.NFKC);
+        StringBuilder whereClause = new StringBuilder();
+        String[] qFilters = q.split(" AND ");
 
         for (String qFilter : qFilters) {
             String[] filterAttributes = qFilter.split("==");
-
-            switch (filterAttributes[0]) {
-                case "ip.src":
-                    if(isValidIPAddress(filterAttributes[1])) {
-                        whereClause += "sourceIP='" + filterAttributes[1] + "'";
-                    } else {
-                        throw new IllegalStateException("Invalid source IP address : " + filterAttributes[1]);
-                    }
-                    break;
-                case "ip.dst":
-                    if(isValidIPAddress(filterAttributes[1])) {
-                        whereClause += "destinationIP='" + filterAttributes[1] + "'";
-                    } else {
-                        throw new IllegalStateException("Invalid destination IP address : " + filterAttributes[1]);
-                    }
-                    break;
-                case "tcp.port":
-                    if(isValidPortNumber(filterAttributes[1])) {
-                        whereClause += "port='" + filterAttributes[1] + "'";
-                    } else {
-                        throw new IllegalStateException("Invalid port number : " + filterAttributes[1]);
-                    }
-                    break;
-                default:
-                    throw new IllegalStateException("Invalid filter attribute : " + filterAttributes[0]);
+            if (filterAttributes.length == 2) {
+                switch (filterAttributes[0].trim()) {
+                    case "ip.src":
+                        if (isValidIPAddress(filterAttributes[1].trim())) {
+                            whereClause.append("sourceIP='").append(filterAttributes[1].trim()).append("'");
+                        } else {
+                            throw new IllegalStateException("Invalid source IP address : " + filterAttributes[1]);
+                        }
+                        break;
+                    case "ip.dst":
+                        if (isValidIPAddress(filterAttributes[1].trim())) {
+                            whereClause.append("destinationIP='").append(filterAttributes[1].trim()).append("'");
+                        } else {
+                            throw new IllegalStateException("Invalid destination IP address : " + filterAttributes[1]);
+                        }
+                        break;
+                    case "tcp.port":
+                        if (isValidPortNumber(filterAttributes[1].trim())) {
+                            whereClause.append("port='").append(filterAttributes[1].trim()).append("'");
+                        } else {
+                            throw new IllegalStateException("Invalid port number : " + filterAttributes[1]);
+                        }
+                        break;
+                    default:
+                        throw new IllegalStateException("Invalid filter attribute : " + filterAttributes[0]);
+                }
+                whereClause.append(" AND ");
             }
         }
+        whereClause.delete(whereClause.length() - 5, whereClause.length()); //Remove the trailing " AND "
         return "SELECT * FROM traffic_logs WHERE " + whereClause + ";";
     }
 
     public List<TrafficLog> getTrafficLogsFromSearch(String q) {
         String rawSQLQuery = createRawSQLQueryFromSearch(q);
+        logger.info("SQL query to be executed : " + rawSQLQuery);
         List<TrafficLog> trafficLogs = new ArrayList<>();
 
         try {
@@ -83,16 +90,13 @@ class SearchHandler {
     }
 
     private boolean isValidIPAddress(String ipAddress) {
-        String ipv4Pattern = "^([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-                "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-                "([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\." +
-                "([01]?\\d\\d?|2[0-4]\\d|25[0-5])$";
-        return ipAddress.matches(ipv4Pattern);
+        String ipv4Pattern = "^((25[0-5]|(2[0-4]|1\\d|[1-9]|)\\d)\\.?\\b){4}$";
+        return ipAddress.matches(ipv4Pattern); //better would be to use apache commons InetAddressValidator
     }
 
     private boolean isValidPortNumber(String portNumber) {
-        String portPattern = "^([1-9]\\d{0,4}|[1-5]\\d{4}|6[0-4]\\d{3}|65[0-4]\\d{2}|655[0-2]\\d|6553[0-5])$";
-        return portNumber.matches(portPattern);
+        int port = Integer.parseInt(portNumber);
+        return port > 0 && port < 65535;
     }
 }
 
